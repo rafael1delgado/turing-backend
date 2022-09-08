@@ -1,0 +1,16 @@
+{
+  "name": "turing-backend",
+  "version": "1.0.0",
+  "description": "backend of turing project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sebastian Navas, Gianny Marquina, Pedro Carvajal, Rafael Delgado",
+  "license": "ISC",
+  "dependencies": {
+    "mongo-db": "^1.0.2",
+    "netlify": "^12.0.1",
+    "netlify-cli": "^11.5.1"
+  }
+}
