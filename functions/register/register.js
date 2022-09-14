@@ -4,27 +4,54 @@ const { client } = require('../../utils/conect-mongodb');
 const { output } = require('../../utils/utils');
 let { userSchema } = require('../../validation/user');
 
-const handler = async (event) => {
+let middy = require("middy");
+let { httpHeaderNormalizer, jsonBodyParser } = require("middy/middlewares");
+
+const fnHandler = async (event) => {
     try {
+
+        // console.log("Payload:" + JSON.stringify(event.body));
+        // console.log("Payload:" + event);
+        // return output({ payload: event.body }, 200)
+        
         let { httpMethod: method } = event;
-        const data = JSON.parse(event.body);
-        const { name, last_name, email, password } = data;
-        const salt = await bcrypt.genSalt(10);
-        let pass = await bcrypt.hash(password, salt);
+        
+        // const data = JSON.stringify(event.body);
+        let data = event.body;
+        let { fname, lname, alias, email, psw } = data;
+        // let salt = await bcrypt.genSalt(10);
+        // let pass = await bcrypt.hash(psw, salt);
+        
+        if (method === 'OPTIONS') {
+            // To enable CORS
+            return output("success", 200)
+        }
 
         if(method == 'POST') {
+            
+            let salt = await bcrypt.genSalt(10);
+            let pass = await bcrypt.hash(psw, salt);
+
             await client.connect();
             const collectionUsers = client.db().collection('users');
+
             try {
                 await userSchema.validate(data)
                 await collectionUsers.insertOne({
-                    name: name,
-                    last_name: last_name,
+                    // name: name,
+                    // last_name: last_name,
+                    // email: email,
+                    // password: pass,
+                    fname: fname,
+                    lname: lname,
+                    alias: alias,
                     email: email,
-                    password: pass,
+                    psw: pass,
+                    // psw: psw,
                     uuid: uuid.v4(),
                 });
                 return output({ msg: 'El usuario fue registrado exitosamente.'}, 200)
+                
             } catch (error) {
                 return output({ error: error.toString(), path: error.path, description: error.errors}, 400);
             }
@@ -34,4 +61,5 @@ const handler = async (event) => {
     }
 }
 
-module.exports = { handler }
+// module.exports = { fnHandler }
+exports.handler = middy(fnHandler).use(httpHeaderNormalizer()).use(jsonBodyParser());
