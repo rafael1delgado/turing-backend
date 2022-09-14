@@ -5,7 +5,11 @@ const SECRET = {
 function output(content, statusCode) {
   return {
     statusCode: statusCode,
-    body: JSON.stringify(content),
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "Content-Type"
+    },
+    body: JSON.stringify(content)
   };
 }
 
