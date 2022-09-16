@@ -8,7 +8,10 @@ async function saveTradeInfo(email, tradeInfo, wallet) {
   const collectionUsers = client.db().collection("users");
   let r = await collectionUsers.updateOne(
     { email: email },
-    { $push: { tradeHistory: tradeInfo }, $set: { wallet } }
+    {
+      $push: { "balance.orders": tradeInfo },
+      $set: { "balance.assets": wallet },
+    }
   );
   return r;
 }
@@ -38,11 +41,11 @@ const handler = async (event) => {
         );
       }
 
-      let walletFunds = user.wallet;
-      const coinTradeSymbol = symbol.slice(0, -4).toUpperCase();
+      let walletFunds = user.balance.assets;
+      const coinTradeSymbol = symbol.slice(0, -4);
 
-      if (type.toUpperCase() === "BUY" && notional > walletFunds.USDT) {
-        return output({ error: "Not enought USDT to trade" }, 500);
+      if (type.toUpperCase() === "BUY" && notional > walletFunds.usdt) {
+        return output({ error: "Not enought usdt to trade" }, 500);
       }
 
       if (
@@ -59,11 +62,11 @@ const handler = async (event) => {
       const coinTradeQty = tradeInfo.executedQty;
       if (tradeInfo.side === "BUY") {
         walletFunds[coinTradeSymbol] += parseFloat(coinTradeQty);
-        walletFunds.USDT -= parseFloat(usdtTradeQty);
+        walletFunds.usdt -= parseFloat(usdtTradeQty);
         await saveTradeInfo(email, tradeInfo, walletFunds);
       } else {
         walletFunds[coinTradeSymbol] -= parseFloat(coinTradeQty);
-        walletFunds.USDT += parseFloat(usdtTradeQty);
+        walletFunds.usdt += parseFloat(usdtTradeQty);
         await saveTradeInfo(email, tradeInfo, walletFunds);
       }
 
