@@ -14,6 +14,8 @@ const handler = async (event) => {
     return output({ error: jwtError }, 500);
   }
 
+
+
   const email = user.email;
 
   if (method === "GET") {
@@ -21,7 +23,9 @@ const handler = async (event) => {
       await client.connect();
       const collectionUsers = client.db().collection("users");
       const response = await collectionUsers.findOne({ email });
+
       const tradeHistory = response.balance.orders;
+
 
       if (!tradeHistory) {
         return output({ msg: "user has no trades" }, 200);

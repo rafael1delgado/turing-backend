@@ -20,10 +20,12 @@ async function saveTradeInfo(email, tradeInfo, wallet) {
 
 const handler = async (event) => {
   let { httpMethod: method } = event;
+
   const { symbol, quantity, type } = event.body;
   const { error: jwtError, user } = await verifyJwt(
     event.multiValueHeaders.Authorization
   );
+
 
   if (jwtError) {
     return output({ error: jwtError }, 500);
@@ -61,6 +63,7 @@ const handler = async (event) => {
           500
         );
       }
+
       // const tradeInfo = await makeTrade(symbol, quantity, type);
       // const usdtTradeQty = tradeInfo.cummulativeQuoteQty;
       // const coinTradeQty = tradeInfo.executedQty;
@@ -93,6 +96,7 @@ const handler = async (event) => {
       }
 
       return output({ msg: "trade completed succesfully" }, 200);
+
     } catch (error) {
       console.log(error);
       return output({ error: error }, 500);
