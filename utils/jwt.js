@@ -10,7 +10,7 @@ async function verifyJwt(auth) {
     const decode = jwt.verify(TOKEN, SECRET_TOKEN);
     await client.connect();
     const collectionUsers = client.db().collection("users");
-    const user = await collectionUsers.find({ email: decode.email }).toArray();
+    const user = await collectionUsers.findOne({ email: decode.email })
     return user;
   } catch (error) {
     return [];
