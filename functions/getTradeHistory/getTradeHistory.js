@@ -9,14 +9,14 @@ const handler = async (event) => {
   if (user.length == 0) {
     return output({ error: "authentication error" }, 500);
   }
-  const email = user[0].email;
+  const email = user.email;
 
   if (method === "GET") {
     try {
       await client.connect();
       const collectionUsers = client.db().collection("users");
-      const info = await collectionUsers.find({ email }).toArray();
-      const tradeHistory = info[0].tradeHistory;
+      const response = await collectionUsers.findOne({ email });
+      const tradeHistory = response.tradeHistory
 
       if (!tradeHistory) {
         return output({ msg: "user has no trades" }, 200);
