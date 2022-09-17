@@ -1,3 +1,5 @@
+let middy = require("middy");
+let { httpHeaderNormalizer } = require("middy/middlewares");
 const { output } = require("../../utils/utils");
 const { client } = require("../../utils/conect-mongodb");
 
@@ -13,4 +15,6 @@ const handler = async (event) => {
     return output(error, 500);
   }
 };
-module.exports = { handler };
+
+exports.handler = middy(handler)
+  .use(httpHeaderNormalizer())
