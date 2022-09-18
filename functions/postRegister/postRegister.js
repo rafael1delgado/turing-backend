@@ -4,8 +4,9 @@ const uuid = require("uuid");
 let middy = require("middy");
 let { httpHeaderNormalizer, jsonBodyParser } = require("middy/middlewares");
 const { client } = require("../../utils/conect-mongodb");
-const { output, SECRET } = require("../../utils/utils");
 let { userSchema, capitalize } = require("../../validation/user");
+const { output } = require("../../utils/utils");
+require("dotenv").config();
 
 const fnHandler = async (event) => {
   try {
@@ -20,9 +21,9 @@ const fnHandler = async (event) => {
 
     if (method == "POST") {
 
-      // let fullname = name.split(" ");
-      // fullname = fullname.map( word => capitalize(word) );
-      // name = fullname.join(" ").trim();
+      let fullname = name.split(" ");
+      fullname = fullname.map( word => capitalize(word) );
+      name = fullname.join(" ").trim();
 
       email = email.toLowerCase();
 
@@ -34,7 +35,7 @@ const fnHandler = async (event) => {
 
       try {
         await userSchema.validate(data);
-        const token = await jwt.sign({ email: email }, SECRET.SECRET_TOKEN, {
+        const token = await jwt.sign({ email: email }, process.env.SECRET_TOKEN, {
           expiresIn: "12h",
         });
         const assets = { ustd: 0, ltc: 0, xrp: 0, xmr: 0, dash: 0, zcash: 0 };

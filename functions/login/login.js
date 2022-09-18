@@ -3,10 +3,8 @@ const bcrypt = require("bcrypt");
 const { client } = require("../../utils/conect-mongodb");
 let middy = require("middy");
 let { httpHeaderNormalizer, jsonBodyParser } = require("middy/middlewares");
-const {
-  output,
-  SECRET: { SECRET_TOKEN },
-} = require("../../utils/utils");
+const { output } = require("../../utils/utils");
+require("dotenv").config();
 
 const handler = async (event) => {
   try {
@@ -23,7 +21,7 @@ const handler = async (event) => {
         const validPassword = await bcrypt.compare(password, users[0].password);
 
         if (validPassword) {
-          const token = await jwt.sign({ email: email }, SECRET_TOKEN, {
+          const token = await jwt.sign({ email: email }, process.env.SECRET_TOKEN, {
             expiresIn: "12h",
           });
           const iat = Math.round(Date.now()/1000);
