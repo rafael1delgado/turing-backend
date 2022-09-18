@@ -1,11 +1,12 @@
 
-const { output, SECRET: {SECRET_TOKEN} } = require('../../utils/utils');
+const { output } = require('../../utils/utils');
 let { paySchema } = require('../../validation/pay');
 const { client } = require('../../utils/conect-mongodb');
 const jwt = require("jsonwebtoken");
 
 let middy = require("middy");
 let { httpHeaderNormalizer, jsonBodyParser } = require("middy/middlewares");
+const { verifyJwt } = require('../../utils/jwt');
 
 async function getBalance(email, money) {
     await client.connect();
@@ -20,6 +21,14 @@ async function getBalance(email, money) {
 const fnHandler = async (event) => {
     try {
         let { httpMethod: method } = event;
+        const { error: jwtError, user } = await verifyJwt(
+            event.multiValueHeaders.Authorization
+        );
+
+        if (jwtError) {
+            return output({ error: jwtError }, 500);
+        }
+
         let data = event.body;
         let { amount, type, destination, money} = data;
         amount = Number.parseFloat(amount);
@@ -41,8 +50,7 @@ const fnHandler = async (event) => {
                 let userDestination = (users.length > 0) ? users[0] : null;
 
                 // Find origin
-                let userOrigin = {}; // se obtiene del jwt
-                userOrigin.email = 'rafael@gmail.com' // se obtiene del jwt
+                let userOrigin = user;
                 let balanceOrigin = await getBalance(userOrigin.email, money);
 
                 if(balanceOrigin >= amount)
