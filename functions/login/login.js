@@ -53,4 +53,3 @@ const handler = async (event) => {
 exports.handler = middy(handler)
   .use(httpHeaderNormalizer())
   .use(jsonBodyParser());
-// module.exports = { handler };
