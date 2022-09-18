@@ -4,22 +4,29 @@ const uuid = require("uuid");
 let middy = require("middy");
 let { httpHeaderNormalizer, jsonBodyParser } = require("middy/middlewares");
 const { client } = require("../../utils/conect-mongodb");
+let { userSchema, capitalize } = require("../../validation/user");
 const { output } = require("../../utils/utils");
-let { userSchema } = require("../../validation/user");
 require("dotenv").config();
 
 const fnHandler = async (event) => {
   try {
     let { httpMethod: method } = event;
     let data = event.body;
-    let { fname, lname, alias, email, psw } = data;
+    let { name, email, psw } = data;
 
     if (method === "OPTIONS") {
-      // To enable CORS
+      // enable CORS
       return output("success", 200);
     }
 
     if (method == "POST") {
+
+      let fullname = name.split(" ");
+      fullname = fullname.map( word => capitalize(word) );
+      name = fullname.join(" ").trim();
+
+      email = email.toLowerCase();
+
       let salt = await bcrypt.genSalt(10);
       let pass = await bcrypt.hash(psw, salt);
 
@@ -34,9 +41,7 @@ const fnHandler = async (event) => {
         const assets = { ustd: 0, ltc: 0, xrp: 0, xmr: 0, dash: 0, zcash: 0 };
         const iat = Math.round(Date.now() / 1000);
         await collectionUsers.insertOne({
-          fname: fname,
-          lname: lname,
-          alias: alias,
+          name: name,
           email: email,
           psw: pass,
           uuid: uuid.v4(),
