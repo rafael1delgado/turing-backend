@@ -10,8 +10,6 @@
   "license": "ISC",
   "dependencies": {
     "@binance/connector": "^1.13.0",
-    "@middy/core": "^3.3.1",
-    "@middy/http-cors": "^3.3.1",
     "bcrypt": "^5.0.1",
     "dotenv": "^16.0.2",
     "jsonwebtoken": "^8.5.1",
