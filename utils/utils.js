@@ -1,7 +1,3 @@
-const SECRET = {
-  SECRET_TOKEN: "secret",
-};
-
 function output(content, statusCode) {
   return {
     statusCode: statusCode,
@@ -14,6 +10,5 @@ function output(content, statusCode) {
 }
 
 module.exports = {
-  output,
-  SECRET,
+  output
 };

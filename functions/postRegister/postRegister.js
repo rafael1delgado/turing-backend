@@ -6,6 +6,7 @@ let { httpHeaderNormalizer, jsonBodyParser } = require("middy/middlewares");
 const { client } = require("../../utils/conect-mongodb");
 const { output } = require("../../utils/utils");
 let { userSchema } = require("../../validation/user");
+require("dotenv").config();
 
 const fnHandler = async (event) => {
   try {
@@ -27,7 +28,7 @@ const fnHandler = async (event) => {
 
       try {
         await userSchema.validate(data);
-        const token = await jwt.sign({ email: email }, SECRET_TOKEN, {
+        const token = await jwt.sign({ email: email }, process.env.SECRET_TOKEN, {
           expiresIn: "12h",
         });
         const assets = { ustd: 0, ltc: 0, xrp: 0, xmr: 0, dash: 0, zcash: 0 };
