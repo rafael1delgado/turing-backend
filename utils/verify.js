@@ -1,5 +1,5 @@
 
-let decoded = await jwt.verify(token, SECRET_TOKEN);
+let decoded = await jwt.verify(token, TU_TOKEN);
 
 var iat = new Date(); // emitido el
 var exp = new Date(); // expira el
@@ -13,5 +13,5 @@ console.log(exp.toLocaleString());
 
 
 const token = event.multiValueHeaders.Authorization[0].split(" ")[1]
-let decoded = await jwt.verify(token, SECRET_TOKEN);
+let decoded = await jwt.verify(token, TU_TOKEN);
 return output({msg: 'Bien', decoded: decoded}, 200);
