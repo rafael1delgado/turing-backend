@@ -14,7 +14,7 @@ function myFunction(collectionName, fieldName, message) {
             if(results.length > 0)
                 return false;
             else
-            return true;
+                return true;
         }
     });
 }
