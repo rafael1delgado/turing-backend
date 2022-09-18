@@ -4,15 +4,14 @@ const uuid = require("uuid");
 let middy = require("middy");
 let { httpHeaderNormalizer, jsonBodyParser } = require("middy/middlewares");
 const { client } = require("../../utils/conect-mongodb");
-let { userSchema, capitalize } = require("../../validation/user");
+let { userSchema, userData } = require("../../validation/user");
 const { output } = require("../../utils/utils");
 require("dotenv").config();
 
 const fnHandler = async (event) => {
   try {
     let { httpMethod: method } = event;
-    let data = event.body;
-    let { name, email, psw } = data;
+    
 
     if (method === "OPTIONS") {
       // enable CORS
@@ -21,11 +20,9 @@ const fnHandler = async (event) => {
 
     if (method == "POST") {
 
-      let fullname = name.split(" ");
-      fullname = fullname.map( word => capitalize(word) );
-      name = fullname.join(" ").trim();
-
-      email = email.toLowerCase();
+      let data = event.body;
+      let { name, email, psw } = data;
+      userData(data);
 
       let salt = await bcrypt.genSalt(10);
       let pass = await bcrypt.hash(psw, salt);
@@ -49,7 +46,7 @@ const fnHandler = async (event) => {
           balance: { assets },
         });
         return output(
-          { msg: "El usuario fue registrado exitosamente.", token },
+          { msg: "El usuario fue registrado exitosamente.", token: token }, //
           200
         );
       } catch (error) {
