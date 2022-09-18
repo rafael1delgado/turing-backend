@@ -1,3 +1,5 @@
+let middy = require("middy");
+let { httpHeaderNormalizer } = require("middy/middlewares");
 const { output } = require("../../utils/utils");
 const { getPrices } = require("../../utils/binance");
 
@@ -13,4 +15,4 @@ const handler = async (event) => {
     }
   }
 };
-module.exports = { handler };
+exports.handler = middy(handler).use(httpHeaderNormalizer());

@@ -1,3 +1,5 @@
+let middy = require("middy");
+let { httpHeaderNormalizer, jsonBodyParser } = require("middy/middlewares");
 const { output } = require("../../utils/utils");
 const { verifyJwt } = require("../../utils/jwt");
 const { makeTrade, getMinNotional, getPrice } = require("../../utils/binance");
@@ -18,11 +20,15 @@ async function saveTradeInfo(email, tradeInfo, wallet) {
 
 const handler = async (event) => {
   let { httpMethod: method } = event;
-  const { symbol, quantity, type } = JSON.parse(event.body);
-  const user = await verifyJwt(event.multiValueHeaders.authorization);
 
-  if (user.length == 0) {
-    return output({ error: "authentication error" }, 500);
+  const { symbol, quantity, type } = event.body;
+  const { error: jwtError, user } = await verifyJwt(
+    event.multiValueHeaders.Authorization
+  );
+
+
+  if (jwtError) {
+    return output({ error: jwtError }, 500);
   }
 
   if (method == "POST") {
@@ -57,23 +63,40 @@ const handler = async (event) => {
           500
         );
       }
-      const tradeInfo = await makeTrade(symbol, quantity, type);
-      const usdtTradeQty = tradeInfo.cummulativeQuoteQty;
-      const coinTradeQty = tradeInfo.executedQty;
-      if (tradeInfo.side === "BUY") {
+
+      // const tradeInfo = await makeTrade(symbol, quantity, type);
+      // const usdtTradeQty = tradeInfo.cummulativeQuoteQty;
+      // const coinTradeQty = tradeInfo.executedQty;
+      //
+      const {
+        cummulativeQuoteQty,
+        executedQty,
+        symbol: tradeSymbol,
+        side,
+        transactTime,
+      } = await makeTrade(symbol, quantity, type);
+      const saveInfo = {
+        tradeSymbol,
+        executedQty,
+        cummulativeQuoteQty,
+        transactTime,
+        side,
+      };
+      const usdtTradeQty = cummulativeQuoteQty;
+      const coinTradeQty = executedQty;
+
+      if (side === "BUY") {
         walletFunds[coinTradeSymbol] += parseFloat(coinTradeQty);
         walletFunds.usdt -= parseFloat(usdtTradeQty);
-        await saveTradeInfo(email, tradeInfo, walletFunds);
+        await saveTradeInfo(email, saveInfo, walletFunds);
       } else {
         walletFunds[coinTradeSymbol] -= parseFloat(coinTradeQty);
         walletFunds.usdt += parseFloat(usdtTradeQty);
-        await saveTradeInfo(email, tradeInfo, walletFunds);
+        await saveTradeInfo(email, saveInfo, walletFunds);
       }
 
-      return output(
-        { msg: "trade completed succesfully", binance: tradeInfo },
-        200
-      );
+      return output({ msg: "trade completed succesfully" }, 200);
+
     } catch (error) {
       console.log(error);
       return output({ error: error }, 500);
@@ -81,4 +104,7 @@ const handler = async (event) => {
   }
 };
 
-module.exports = { handler };
+exports.handler = middy(handler)
+  .use(httpHeaderNormalizer())
+  .use(jsonBodyParser());
+// module.exports = { handler };
