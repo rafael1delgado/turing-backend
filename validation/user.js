@@ -22,13 +22,17 @@ function myFunction(collectionName, fieldName, message) {
 yup.addMethod(yup.mixed, 'unique', myFunction);
 
 let userSchema = yup.object({
-    fname: yup.string().min(2).max(255).required(),
-    lname: yup.string().min(2).max(255).required(),
-    alias: yup.string().min(2).max(255).required().unique('users', 'alias', 'Alias is already in use'),
-    email: yup.string().email().min(3).max(255).required().unique('users', 'email', 'Email is already in use'),
-    psw: yup.string().min(8).max(20).required()
+    name: yup.string().required().matches(/^\s?[a-zA-Z]+\s[a-zA-Z]+\s?$/),
+    email: yup.string().email().required().unique("users", "email", "Dirección de correo electrónico en uso"),
+    psw: yup.string().required().min(8).max(18)
+    .matches(/^((?=.*[!@#$%^&*()\-_=+{};:,<.>]){1})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/),
 });
 
+let capitalize = (str) => {
+    const lower = str.toLowerCase();
+    return lower.charAt(0).toUpperCase() + lower.slice(1);
+}
+
 module.exports = {
-    userSchema
+    userSchema, capitalize
 }
