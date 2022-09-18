@@ -25,7 +25,6 @@ let userSchema = yup.object({
     fname: yup.string().min(2).max(255).required(),
     lname: yup.string().min(2).max(255).required(),
     alias: yup.string().min(2).max(255).required().unique('users', 'alias', 'Alias is already in use'),
-    email: yup.string().email().min(3).max(255).required(),
     email: yup.string().email().min(3).max(255).required().unique('users', 'email', 'Email is already in use'),
     psw: yup.string().min(8).max(20).required()
 });
