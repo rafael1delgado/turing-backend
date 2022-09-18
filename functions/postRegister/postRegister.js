@@ -14,7 +14,6 @@ const fnHandler = async (event) => {
     
 
     if (method === "OPTIONS") {
-      // enable CORS
       return output("success", 200);
     }
 
@@ -65,7 +64,6 @@ const fnHandler = async (event) => {
   }
 };
 
-// module.exports = { fnHandler }
 exports.handler = middy(fnHandler)
   .use(httpHeaderNormalizer())
   .use(jsonBodyParser());

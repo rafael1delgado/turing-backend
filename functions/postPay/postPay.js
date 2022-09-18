@@ -96,4 +96,6 @@ const fnHandler = async (event) => {
     }
 }
 
-exports.handler = middy(fnHandler).use(httpHeaderNormalizer()).use(jsonBodyParser());
+exports.handler = middy(fnHandler)
+    .use(httpHeaderNormalizer())
+    .use(jsonBodyParser());
