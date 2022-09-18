@@ -23,7 +23,7 @@ yup.addMethod(yup.mixed, 'unique', myFunction);
 
 let userSchema = yup.object({
     name: yup.string().required().matches(/^\s?[a-zA-Z]+\s[a-zA-Z]+\s?$/),
-    email: yup.string().email().required(),
+    email: yup.string().email().required().unique("users", "email", "Dirección de correo electrónico en uso"),
     psw: yup.string().required().min(8).max(18)
     .matches(/^((?=.*[!@#$%^&*()\-_=+{};:,<.>]){1})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/),
 });
