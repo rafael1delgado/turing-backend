@@ -5,7 +5,7 @@ let middy = require("middy");
 let { httpHeaderNormalizer, jsonBodyParser } = require("middy/middlewares");
 require("dotenv").config();
 const { client } = require("../../utils/conect-mongodb");
-let { userSchema, capitalize } = require("../../validation/user");
+let { userSchema, userData } = require("../../validation/user");
 const { output } = require("../../utils/utils");
 const { sendEmail } = require("../../utils/email");
 
@@ -32,13 +32,10 @@ const fnHandler = async (event) => {
     }
 
     if (method == "POST") {
+
       let data = event.body;
       let { name, email, psw } = data;
-      let fullname = name.split(" ");
-      fullname = fullname.map((word) => capitalize(word));
-      name = fullname.join(" ").trim();
-
-      email = email.toLowerCase();
+      userData(data);
 
       let salt = await bcrypt.genSalt(10);
       let pass = await bcrypt.hash(psw, salt);
@@ -64,7 +61,7 @@ const fnHandler = async (event) => {
         });
         verificationEmail(email)
         return output(
-          { msg: "El usuario fue registrado exitosamente.", token },
+          { msg: "El usuario fue registrado exitosamente.", token: token }, //
           200
         );
       } catch (error) {

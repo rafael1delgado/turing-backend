@@ -55,8 +55,16 @@ let passSchema = yup.object({
     ),
 });
 
+let userData = (data) => {
+  let fullname = data.name.split(" ");
+  fullname = fullname.map((word) => capitalize(word));
+  data.name = fullname.join(" ").trim();
+
+  data.email = data.email.toLowerCase();
+};
+
 module.exports = {
   userSchema,
-  capitalize,
+  userData,
   passSchema,
 };
