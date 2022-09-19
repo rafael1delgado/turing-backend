@@ -33,6 +33,15 @@ let capitalize = (str) => {
     return lower.charAt(0).toUpperCase() + lower.slice(1);
 }
 
+let userData = (data) => {
+
+    let fullname = data.name.split(" ");
+    fullname = fullname.map( word => capitalize(word) );
+    data.name = fullname.join(" ").trim();
+
+    data.email = data.email.toLowerCase();
+}
+
 module.exports = {
-    userSchema, capitalize
+    userSchema, userData
 }
