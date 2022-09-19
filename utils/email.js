@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer");
 require("dotenv").config();
 
-function sendEmail(email, subject, text) {
+async function sendEmail(email, subject, html) {
   let transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
@@ -16,7 +16,7 @@ function sendEmail(email, subject, text) {
       from: "Turing Wallet <turingwallet@gmail.com>",
       to: email,
       subject: subject,
-      text: text,
+      html: html
     },
     function (error) {
       if (error) {

@@ -3,25 +3,39 @@ const jwt = require("jsonwebtoken");
 const uuid = require("uuid");
 let middy = require("middy");
 let { httpHeaderNormalizer, jsonBodyParser } = require("middy/middlewares");
+require("dotenv").config();
 const { client } = require("../../utils/conect-mongodb");
 let { userSchema, capitalize } = require("../../validation/user");
 const { output } = require("../../utils/utils");
-require("dotenv").config();
+const { sendEmail } = require("../../utils/email");
+
+function verificationEmail(email) {
+  const emailToken = jwt.sign({ email: email }, process.env.SECRET_TOKEN, {
+    expiresIn: "1d",
+  });
+  // url en el frontend
+  const url = `${process.env.FRONTEND_HOST}/verification/${emailToken}`;
+
+  // url para prueba en el backend
+  // const url = `http://localhost:8888/getEmailVerification?emailToken=${emailToken}`;
+
+  const text = `Bienvenido Turing Wallet.\nPor favor verifica tu email haciendo click en el siguiente <a href="${url}">link</a>`;
+  sendEmail(email, "Verificación de email", text);
+}
 
 const fnHandler = async (event) => {
   try {
     let { httpMethod: method } = event;
-    let data = event.body;
-    let { name, email, psw } = data;
 
     if (method === "OPTIONS") {
       return output("success", 200);
     }
 
     if (method == "POST") {
-
+      let data = event.body;
+      let { name, email, psw } = data;
       let fullname = name.split(" ");
-      fullname = fullname.map( word => capitalize(word) );
+      fullname = fullname.map((word) => capitalize(word));
       name = fullname.join(" ").trim();
 
       email = email.toLowerCase();
@@ -34,7 +48,7 @@ const fnHandler = async (event) => {
 
       try {
         await userSchema.validate(data);
-        const token = await jwt.sign({ email: email }, process.env.SECRET_TOKEN, {
+        const token = jwt.sign({ email: email }, process.env.SECRET_TOKEN, {
           expiresIn: "12h",
         });
         const assets = { ustd: 0, ltc: 0, xrp: 0, xmr: 0, dash: 0, zcash: 0 };
@@ -44,9 +58,11 @@ const fnHandler = async (event) => {
           email: email,
           psw: pass,
           uuid: uuid.v4(),
+          verified: false,
           iat,
           balance: { assets },
         });
+        verificationEmail(email)
         return output(
           { msg: "El usuario fue registrado exitosamente.", token },
           200
