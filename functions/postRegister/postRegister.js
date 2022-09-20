@@ -56,6 +56,7 @@ const fnHandler = async (event) => {
           psw: pass,
           uuid: uuid.v4(),
           verified: false,
+          enabledTwoFactor: false,
           iat,
           balance: { assets },
         });
