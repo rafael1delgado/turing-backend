@@ -17,8 +17,8 @@ const handler = async (event) => {
     const users = await collectionUsers.find({ email: email }).toArray();
 
     if (method == "POST") {
-      if (users.length > 0) {
-        const validPassword = await bcrypt.compare(password, users[0].password);
+        if (users.length > 0) {
+        const validPassword = await bcrypt.compare(password, users[0].psw);
 
         if (validPassword) {
           const token = await jwt.sign({ email: email }, process.env.SECRET_TOKEN, {
