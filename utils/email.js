@@ -10,6 +10,10 @@ async function sendEmail(email, subject, html) {
       user: "turingwallet@gmail.com",
       pass: process.env.EMAIL_PASS,
     },
+    // in case no TLS (normal or Windows user)
+    tls: {
+      rejectUnauthorized: false
+    }
   });
   transporter.sendMail(
     {
