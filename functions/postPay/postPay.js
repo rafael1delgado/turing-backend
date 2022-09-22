@@ -1,20 +1,19 @@
 
-const { output } = require('../../utils/utils');
 let { paySchema } = require('../../validation/pay');
+const { output } = require('../../utils/utils');
 const { client } = require('../../utils/conect-mongodb');
-const jwt = require("jsonwebtoken");
+const { verifyJwt } = require('../../utils/jwt');
 
 let middy = require("middy");
 let { httpHeaderNormalizer, jsonBodyParser } = require("middy/middlewares");
-const { verifyJwt } = require('../../utils/jwt');
 
 async function getBalance(email, money) {
     await client.connect();
-    const collectionMovements = client.db().collection('movements');
-    const movements = await collectionMovements.find({ 'user': email, 'money': money }).sort({ 'date': -1 }).toArray();
+    const collectionUsers = client.db().collection('users');
+    let users = await collectionUsers.find({ 'email': email }).toArray();
 
-    if(movements.length > 0)
-        return parseFloat(movements[0].balance);
+    if(users.length > 0 && users[0].balance.assets[money.toLowerCase()])
+        return users[0].balance.assets[money.toLowerCase()];
     return 0;
 }
 
@@ -31,7 +30,6 @@ const fnHandler = async (event) => {
 
         let data = event.body;
         let { amount, type, destination, money} = data;
-        amount = Number.parseFloat(amount);
 
         if (method === 'OPTIONS') {
             return output("success", 200)
@@ -40,53 +38,79 @@ const fnHandler = async (event) => {
         if(method == 'POST') {
             try {
                 await paySchema.validate(data)
+                amount = Number.parseFloat(amount);
+                money = money.toLowerCase();
 
                 // Find destination
                 let field = {};
                 field[`${type}`] = destination;
                 await client.connect();
-                const collectionUsers = client.db().collection('users');
-                let users = await collectionUsers.find(field).toArray();
-                let userDestination = (users.length > 0) ? users[0] : null;
+                const userDestinations = client.db().collection('users');
+                let usersDest = await userDestinations.find(field).toArray();
+                let userDestination = (usersDest.length > 0) ? usersDest[0] : null;
 
-                // Find origin
+                // Find Balance Origin
                 let userOrigin = user;
                 let balanceOrigin = await getBalance(userOrigin.email, money);
 
-                if(balanceOrigin >= amount)
-                {
-                    const collectionMovements = client.db().collection('movements');
+                if(balanceOrigin >= amount) {
 
-                    // Credit to Destination
-                    await collectionMovements.insertOne({
-                        user: userDestination.email,
+                    const collectionUsers = client.db().collection('users');
+
+                    // credit to userDestination.email
+                    let newBalanceDestination = await getBalance(userDestination.email, money) + Number.parseFloat(amount);
+                    const movementCredit = {
                         type: 'credit',
-                        from_to: userOrigin.email, // credit to userOrigin.email
+                        from_to: userOrigin.email,
                         amount: Number.parseFloat(amount),
-                        balance: await getBalance(userDestination.email, money) + Number.parseFloat(amount),
+                        balance: newBalanceDestination,
                         money: money,
-                        date: Date.now()
-                    });
+                        date: Math.floor(Date.now() / 1000)
+                    }
+                    let moneyBalanceDestination = {}
+                    moneyBalanceDestination["balance.assets." + money] = newBalanceDestination;
 
-                    // Debit to Origin
-                    await collectionMovements.insertOne({
-                        user: userOrigin.email,
+                    await collectionUsers.updateOne(
+                        { email: userDestination.email },
+                        { $set: moneyBalanceDestination },
+                    );
+
+                    await collectionUsers.updateOne(
+                        { email: userDestination.email },
+                        { $push: { "balance.movements":  { $each: [movementCredit], $position: 0 } } }
+                    );
+
+                    // debit to userOrigin.email
+                    let newBalanceOrigin =  await getBalance(userOrigin.email, money) - Number.parseFloat(amount);
+                    const movementDebit = {
                         type: 'debit',
-                        from_to: userDestination.email, // debit to userDestination.email
+                        from_to: userDestination.email,
                         amount: Number.parseFloat(amount),
-                        balance: await getBalance(userOrigin.email, money) - Number.parseFloat(amount),
+                        balance: newBalanceOrigin,
                         money: money,
-                        date: Date.now()
-                    });
-                    return output( {msg: `Pago por ${amount}${money} a ${userDestination.email} fue exitoso`}, 200)
-                }
-                else
-                {
+                        date: Math.floor(Date.now() / 1000)
+                    }
+
+                    let moneyBalanceOrigin = {}
+                    moneyBalanceOrigin["balance.assets." + money] = newBalanceOrigin;
+                    await collectionUsers.updateOne(
+                        { email: userOrigin.email },
+                        { $set: moneyBalanceOrigin },
+                    );
+
+                    await collectionUsers.updateOne(
+                        { email: userOrigin.email },
+                        { $push: { 'balance.movements': { $each: [movementDebit], $position: 0 } } }
+                    );
+
+                    return output( {msg: `Pago por ${amount} ${money} a ${userDestination.email} fue enviado exitosamente.`}, 200)
+                } else {
                     return output({
-                        msg: 'Disculpe, ud no posee balance suficiente en la cuenta.',
-                        description: `El balance actual es ${balanceOrigin}`
+                        error: 'Disculpe, ud no posee balance suficiente en la cuenta.',
+                        description: `El balance actual es ${balanceOrigin} ${money.toUpperCase()}`
                     }, 400)
                 }
+
             } catch (error) {
                 return output({ error: error.toString(), path: error.path, description: error.errors}, 400);
             }
