@@ -1,11 +1,13 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const uuid = require("uuid");
+require("dotenv").config();
+
 let middy = require("middy");
 let { httpHeaderNormalizer, jsonBodyParser } = require("middy/middlewares");
-require("dotenv").config();
-const { client } = require("../../utils/conect-mongodb");
+
 let { userSchema, userData } = require("../../validation/user");
+const { client } = require("../../utils/conect-mongodb");
 const { output } = require("../../utils/utils");
 const { sendEmail } = require("../../utils/email");
 
@@ -48,7 +50,16 @@ const fnHandler = async (event) => {
         const token = jwt.sign({ email: email }, process.env.SECRET_TOKEN, {
           expiresIn: "12h",
         });
-        const assets = { ustd: 0, ltc: 0, xrp: 0, xmr: 0, dash: 0, zcash: 0 };
+        const assets = { usdt: 5, ltc: 0, xrp: 0, xmr: 0, dash: 0, zcash: 0 };
+        const movementCredit = [{
+            type: 'credit',
+            from_to: 'turingwallet@gmail.com',
+            amount: 5,
+            balance: 5,
+            money: 'usdt',
+            date: Math.floor(Date.now() / 1000)
+        }]
+
         const iat = Math.round(Date.now() / 1000);
         await collectionUsers.insertOne({
           name: name,
@@ -58,7 +69,7 @@ const fnHandler = async (event) => {
           verified: false,
           enabledTwoFactor: false,
           iat,
-          balance: { assets },
+          balance: { assets, movements: movementCredit },
         });
         verificationEmail(email)
         return output(
