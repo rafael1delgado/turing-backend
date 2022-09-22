@@ -16,7 +16,7 @@ const fnHandler = async (event) => {
             return output({ error: jwtError }, 500);
         }
 
-        const money = event.queryStringParameters.money;
+        let money = event.queryStringParameters.money;
 
         if (method === 'OPTIONS') {
             return output("success", 200)
@@ -25,10 +25,13 @@ const fnHandler = async (event) => {
         if(method == 'GET') {
             try {
                 await client.connect();
-                const collectionMovements = client.db().collection('movements');
-                const movements = await collectionMovements.find({ 'user': user.email, 'money': money }).sort({ 'date': -1 }).toArray();
-                let movement = (movements.length > 0) ? movements[0] : 0;
-                return output({ movements: movements, balance_amount: movement.balance, balance_money: movement.money }, 200);
+                const collectionUsers = client.db().collection('users');
+                const users = await collectionUsers.find({ 'email': user.email }).toArray();
+                let movements = [];
+                if(users.length > 0) {
+                    movements = users[0].balance.movements;
+                }
+                return output({ movements: movements }, 200);
             } catch (error) {
                 return output({ error: error.toString(), path: error.path, description: error.errors}, 400);
             }
