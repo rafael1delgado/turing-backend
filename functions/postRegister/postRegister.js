@@ -86,6 +86,8 @@ const fnHandler = async (event) => {
           },
           400
         );
+      } finally {
+        await client.close();
       }
     }
   } catch (error) {
