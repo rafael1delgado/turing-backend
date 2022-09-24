@@ -1,7 +1,9 @@
 const { client } = require('../../utils/conect-mongodb');
 const { output } = require('../../utils/utils');
+let middy = require("middy");
+let { httpHeaderNormalizer, jsonBodyParser } = require("middy/middlewares");
 
-const handler = async (event) => {
+const fnHandler = async (event) => {
     try {
         let { httpMethod: method } = event;
 
@@ -9,7 +11,6 @@ const handler = async (event) => {
             await client.connect();
             const collectionUsers = client.db().collection('users');
             const users = await collectionUsers.find({}).toArray();
-
             return output({ users: users}, 200);
         }
     } catch (error) {
@@ -17,4 +18,6 @@ const handler = async (event) => {
     }
 }
 
-module.exports = { handler }
+exports.handler = middy(fnHandler)
+  .use(httpHeaderNormalizer())
+  .use(jsonBodyParser());
