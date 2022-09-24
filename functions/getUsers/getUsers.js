@@ -1,7 +1,9 @@
 const { client } = require('../../utils/conect-mongodb');
 const { output } = require('../../utils/utils');
+let middy = require("middy");
+let { httpHeaderNormalizer, jsonBodyParser } = require("middy/middlewares");
 
-const handler = async (event) => {
+const fnHandler = async (event) => {
     try {
         let { httpMethod: method } = event;
 
@@ -17,4 +19,6 @@ const handler = async (event) => {
     }
 }
 
-module.exports = { handler }
+exports.handler = middy(fnHandler)
+  .use(httpHeaderNormalizer())
+  .use(jsonBodyParser());
