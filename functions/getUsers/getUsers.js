@@ -15,6 +15,8 @@ const fnHandler = async (event) => {
         }
     } catch (error) {
         return output({ error: error.toString() }, 500);
+    } finally {
+        await client.close();
     }
 }
 
