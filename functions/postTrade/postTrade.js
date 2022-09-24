@@ -21,29 +21,42 @@ async function saveTradeInfo(email, tradeInfo, wallet) {
 const handler = async (event) => {
   let { httpMethod: method } = event;
 
-  const { symbol, quantity, type } = event.body;
-  const { error: jwtError, user } = await verifyJwt(
-    event.multiValueHeaders.Authorization
-  );
-
-
-  if (jwtError) {
-    return output({ error: jwtError }, 500);
+  if (method === "OPTIONS") {
+    return output("success", 200);
   }
 
   if (method == "POST") {
+    const { error: jwtError, user } = await verifyJwt(
+      event.multiValueHeaders.Authorization
+    );
+
+    if (jwtError) {
+      return output({ error: jwtError }, 500);
+    }
+
+    const { symbol, quantity, type } = event.body;
+
     try {
       const email = user.email;
       const minNotional = await getMinNotional(symbol);
       const price = await getPrice(symbol);
       const notional = quantity * price;
 
+      if (!user.verified) {
+        return output(
+          {
+            error: `The product of quantity * price has to be equal or greater than ${minNotional}`,
+          },
+          400
+        );
+      }
+
       if (notional < minNotional) {
         return output(
           {
             error: `The product of quantity * price has to be equal or greater than ${minNotional}`,
           },
-          500
+          400
         );
       }
 
@@ -51,7 +64,7 @@ const handler = async (event) => {
       const coinTradeSymbol = symbol.slice(0, -4);
 
       if (type.toUpperCase() === "BUY" && notional > walletFunds.usdt) {
-        return output({ error: "Not enought usdt to trade" }, 500);
+        return output({ error: "Not enought usdt to trade" }, 400);
       }
 
       if (
@@ -60,14 +73,10 @@ const handler = async (event) => {
       ) {
         return output(
           { error: `Not enought ${coinTradeSymbol} to trade` },
-          500
+          400
         );
       }
 
-      // const tradeInfo = await makeTrade(symbol, quantity, type);
-      // const usdtTradeQty = tradeInfo.cummulativeQuoteQty;
-      // const coinTradeQty = tradeInfo.executedQty;
-      //
       const {
         cummulativeQuoteQty,
         executedQty,
@@ -96,9 +105,7 @@ const handler = async (event) => {
       }
 
       return output({ msg: "trade completed succesfully" }, 200);
-
     } catch (error) {
-      console.log(error);
       return output({ error: error }, 500);
     }
   }
@@ -107,4 +114,3 @@ const handler = async (event) => {
 exports.handler = middy(handler)
   .use(httpHeaderNormalizer())
   .use(jsonBodyParser());
-// module.exports = { handler };
