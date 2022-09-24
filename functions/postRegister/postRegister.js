@@ -34,7 +34,6 @@ const fnHandler = async (event) => {
     }
 
     if (method == "POST") {
-
       let data = event.body;
       let { name, email, psw } = data;
       userData(data);
@@ -51,16 +50,18 @@ const fnHandler = async (event) => {
           expiresIn: "12h",
         });
         const assets = { usdt: 5, ltc: 0, xrp: 0, xmr: 0, dash: 0, zcash: 0 };
-        const movementCredit = [{
-            type: 'credit',
-            from_to: 'turingwallet@gmail.com',
+        const movementCredit = [
+          {
+            type: "credit",
+            from_to: "turingwallet@gmail.com",
             amount: 5,
             balance: 5,
-            money: 'usdt',
-            date: Math.floor(Date.now() / 1000)
-        }]
+            money: "usdt",
+            date: Math.floor(Date.now() / 1000),
+          },
+        ];
 
-        const iat = Math.round(Date.now() / 1000);
+        const { iat } = jwt.verify(token, process.env.SECRET_TOKEN);
         await collectionUsers.insertOne({
           name: name,
           email: email,
@@ -71,7 +72,7 @@ const fnHandler = async (event) => {
           iat,
           balance: { assets, movements: movementCredit },
         });
-        verificationEmail(email)
+        verificationEmail(email);
         return output(
           { msg: "El usuario fue registrado exitosamente.", token: token }, //
           200

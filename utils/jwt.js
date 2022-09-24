@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const { client } = require("./conect-mongodb");
-require('dotenv').config();
+require("dotenv").config();
 
 async function verifyJwt(auth) {
   try {
@@ -8,7 +8,6 @@ async function verifyJwt(auth) {
     const decode = jwt.verify(TOKEN, process.env.SECRET_TOKEN);
     await client.connect();
     const collectionUsers = client.db().collection("users");
-
     const user = await collectionUsers.findOne({ email: decode.email });
     if (user) {
       if (user.iat > decode.iat) {
@@ -18,7 +17,7 @@ async function verifyJwt(auth) {
     }
     return { error: "Error de autenticación", user };
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return { error: "Token expirado o inválido" };
   }
 }
