@@ -11,7 +11,6 @@ const fnHandler = async (event) => {
             await client.connect();
             const collectionUsers = client.db().collection('users');
             const users = await collectionUsers.find({}).toArray();
-
             return output({ users: users}, 200);
         }
     } catch (error) {
