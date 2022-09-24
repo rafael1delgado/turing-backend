@@ -19,6 +19,8 @@ const handler = async (event) => {
     } catch (error) {
       console.log(error);
       return output({ error: "Token expirado o inválido" }, 500);
+    } finally {
+        await client.close();
     }
   }
 };
