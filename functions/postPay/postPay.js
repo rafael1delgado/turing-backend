@@ -6,6 +6,7 @@ const { verifyJwt } = require('../../utils/jwt');
 
 let middy = require("middy");
 let { httpHeaderNormalizer, jsonBodyParser } = require("middy/middlewares");
+const { sendEmail } = require('../../utils/email');
 
 async function getBalance(email, money) {
     await client.connect();
@@ -29,7 +30,7 @@ const fnHandler = async (event) => {
         }
 
         let data = event.body;
-        let { amount, type, destination, money} = data;
+        let { type, destination, amount, money, note } = data;
 
         if (method === 'OPTIONS') {
             return output("success", 200)
@@ -68,16 +69,18 @@ const fnHandler = async (event) => {
                         date: Math.floor(Date.now() / 1000)
                     }
                     let moneyBalanceDestination = {}
-                    moneyBalanceDestination["balance.assets." + money] = newBalanceDestination;
+                    moneyBalanceDestination['balance.assets.' + money] = newBalanceDestination;
 
                     await collectionUsers.updateOne(
                         { email: userDestination.email },
                         { $set: moneyBalanceDestination },
                     );
 
+                    sendEmail(userDestination.email,'Has recibido un pago', `${userDestination.name} has recibido un pago por ${amount} ${money.toUpperCase()} de ${userOrigin.name}`);
+
                     await collectionUsers.updateOne(
                         { email: userDestination.email },
-                        { $push: { "balance.movements":  { $each: [movementCredit], $position: 0 } } }
+                        { $push: { 'balance.movements':  { $each: [movementCredit], $position: 0 } } }
                     );
 
                     // debit to userOrigin.email
@@ -88,11 +91,12 @@ const fnHandler = async (event) => {
                         amount: Number.parseFloat(amount),
                         balance: newBalanceOrigin,
                         money: money,
-                        date: Math.floor(Date.now() / 1000)
+                        date: Math.floor(Date.now() / 1000),
+                        note: note
                     }
 
                     let moneyBalanceOrigin = {}
-                    moneyBalanceOrigin["balance.assets." + money] = newBalanceOrigin;
+                    moneyBalanceOrigin['balance.assets.' + money] = newBalanceOrigin;
 
                     await collectionUsers.updateOne(
                         { email: userOrigin.email },
