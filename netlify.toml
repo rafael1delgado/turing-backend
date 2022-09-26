@@ -9,4 +9,4 @@
 [[headers]]
   for = "/*"
   [headers.values]
-    Authorization
+  Authorization
