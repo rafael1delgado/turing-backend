@@ -16,7 +16,7 @@ const handler = async (event) => {
     );
 
     if (jwtError) {
-      return output({ error: jwtError }, 500);
+      return output({ error: jwtError, header: event.multiValueHeaders.Authorization }, 500);
     }
     return output("success", 200);
   }

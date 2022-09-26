@@ -17,6 +17,7 @@ async function verifyJwt(auth) {
     }
     return { error: "Error de autenticación", user };
   } catch (error) {
+    console.log(error)
     return { error };
   } finally {
     await client.close();
