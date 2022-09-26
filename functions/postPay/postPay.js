@@ -20,19 +20,19 @@ async function getBalance(email, money) {
 const fnHandler = async (event) => {
   try {
     let { httpMethod: method } = event;
-    const { error: jwtError, user } = await verifyJwt(
-      event.multiValueHeaders.Authorization
-    );
-
-    if (jwtError) {
-      return output({ error: jwtError }, 500);
-    }
 
     if (method === "OPTIONS") {
       return output("success", 200);
     }
 
     if (method == "POST") {
+      const { error: jwtError, user } = await verifyJwt(
+        event.multiValueHeaders.Authorization
+      );
+
+      if (jwtError) {
+        return output({ error: jwtError }, 500);
+      }
       let data = event.body;
       let { type, destination, amount, money, note } = data;
       try {
