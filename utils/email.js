@@ -11,9 +11,9 @@ async function sendEmail(email, subject, html) {
       pass: process.env.EMAIL_PASS,
     },
     // in case no TLS (normal or Windows user)
-    // tls: {
-    //   rejectUnauthorized: false
-    // }
+    tls: {
+        rejectUnauthorized: (process.env.APP_MODE == 'development') ? false : true
+    }
   });
   transporter.sendMail(
     {
