@@ -93,6 +93,7 @@ const fnHandler = async (event) => {
 
                     let moneyBalanceOrigin = {}
                     moneyBalanceOrigin["balance.assets." + money] = newBalanceOrigin;
+
                     await collectionUsers.updateOne(
                         { email: userOrigin.email },
                         { $set: moneyBalanceOrigin },
@@ -113,6 +114,8 @@ const fnHandler = async (event) => {
 
             } catch (error) {
                 return output({ error: error.toString(), path: error.path, description: error.errors}, 400);
+            } finally {
+                await client.close();
             }
         }
     } catch (error) {
