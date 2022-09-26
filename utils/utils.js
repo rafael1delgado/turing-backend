@@ -5,7 +5,8 @@ function output(content, statusCode) {
       "Access-Control-Allow-Origin": "*",
       // "Access-Control-Allow-Headers": "*",
       "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
-      "Access-Control-Request-Headers": "Authorization",
+      "Access-Control-Request-Headers": "authorization",
+      "Access-Control-Allow-Methods": "GET,HEAD,OPTIONS,POST,PUT",
       'Access-Control-Allow-Credentials': true
     },
     body: JSON.stringify(content)
