@@ -24,7 +24,7 @@ const fnHandler = async (event) => {
             const twoFactor = twofactor.generateSecret({ name: user.name, account: user.email });
 
             await client.connect();
-            const collectionUsers = client.db().collection('users');
+            const collectionUsers = await client.db().collection('users');
             const users = await collectionUsers.findOne({ email: user.email});
             let userLogin = (users) ? users : null;
             if(userLogin && userLogin.enabledTwoFactor == false)
