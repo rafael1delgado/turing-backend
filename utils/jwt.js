@@ -11,7 +11,7 @@ async function verifyJwt(auth) {
     const user = await collectionUsers.findOne({ email: decode.email });
     if (user) {
       if (user.iat > decode.iat) {
-        return { error: "Token expirado o inválido", user };
+        return { error: "Sesión expirada", user };
       }
       return { error: false, user };
     }

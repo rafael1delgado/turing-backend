@@ -18,7 +18,7 @@ const handler = async (event) => {
     if (jwtError) {
       return output({ error: jwtError }, 500);
     }
-    return output("success", 200);
+    return output({ msg: "success" }, 200);
   }
 };
 

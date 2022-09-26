@@ -31,7 +31,7 @@ const handler = async (event) => {
             expiresIn: "12h",
           });
           const { iat } = jwt.verify(token, process.env.SECRET_TOKEN);
-          collectionUsers.updateOne(
+          await collectionUsers.updateOne(
             { email },
             { $set: { iat } },
             { $upsert: true }
@@ -53,6 +53,8 @@ const handler = async (event) => {
     }
   } catch (error) {
     return output({ error: "Se produjo un problema." }, 500);
+  } finally {
+    await client.close();
   }
 };
 
