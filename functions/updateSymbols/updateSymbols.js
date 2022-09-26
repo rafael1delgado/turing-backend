@@ -3,21 +3,13 @@ const { output } = require("../../utils/utils");
 const { binanceClient } = require("../../utils/binance");
 
 const coins = [
-  "SOL",
   "XRP",
-  "SHIB",
-  "XLM",
   "LTC",
-  "TRX",
-  "ADA",
-  "NANO",
   "USDT",
   "XMR",
   "DASH",
   "ZEC",
-  "NAV",
 ].sort();
-
 
 const handler = async (event) => {
   try {
@@ -56,8 +48,9 @@ const handler = async (event) => {
       return output(r, 200);
     }
   } catch (error) {
-    console.log(error);
     return output({ error: error.toString() }, 500);
+  } finally {
+    await client.close();
   }
 };
 
