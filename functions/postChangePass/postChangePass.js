@@ -21,13 +21,15 @@ const handler = async (event) => {
       let pass = await bcrypt.hash(psw, salt);
       await client.connect();
       const collectionUsers = client.db().collection("users");
-      collectionUsers.updateOne(
+      await collectionUsers.updateOne(
         { email: decode.email },
         { $set: { psw: pass } }
       );
       return output({ msg: "Contraseña cambiada exitosamente" }, 200);
     } catch (error) {
       return output({ error: "Token expirado o inválido" }, 500);
+    } finally {
+      await client.close();
     }
   }
 };

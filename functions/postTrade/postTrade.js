@@ -6,7 +6,7 @@ const { makeTrade, getMinNotional, getPrice } = require("../../utils/binance");
 const { client } = require("../../utils/conect-mongodb");
 
 async function saveTradeInfo(email, tradeInfo, wallet) {
-  // await client.connect();
+  await client.connect();
   const collectionUsers = client.db().collection("users");
   let r = await collectionUsers.updateOne(
     { email: email },
@@ -15,6 +15,7 @@ async function saveTradeInfo(email, tradeInfo, wallet) {
       $set: { "balance.assets": wallet },
     }
   );
+  await client.close()
   return r;
 }
 

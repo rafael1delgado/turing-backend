@@ -14,8 +14,6 @@ const handler = async (event) => {
     return output({ error: jwtError }, 500);
   }
 
-
-
   const email = user.email;
 
   if (method === "GET") {
@@ -26,17 +24,17 @@ const handler = async (event) => {
 
       const tradeHistory = response.balance.orders;
 
-
       if (!tradeHistory) {
         return output({ msg: "user has no trades" }, 200);
       }
 
       return output(tradeHistory, 200);
     } catch (error) {
-      return output(error, 500);
+      return output({ error }, 500);
+    } finally {
+      await client.close();
     }
   }
 };
 
-exports.handler = middy(handler)
-  .use(httpHeaderNormalizer())
+exports.handler = middy(handler).use(httpHeaderNormalizer());

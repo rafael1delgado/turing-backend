@@ -17,8 +17,9 @@ async function verifyJwt(auth) {
     }
     return { error: "Error de autenticación", user };
   } catch (error) {
-    console.log(error);
     return { error: "Token expirado o inválido" };
+  } finally {
+    await client.close();
   }
 }
 
