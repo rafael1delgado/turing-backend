@@ -24,4 +24,5 @@ const handler = async (event) => {
     }
   }
 };
-exports.handler = middy(handler).use(httpHeaderNormalizer());
+exports.handler = middy(handler)
+    .use(httpHeaderNormalizer());
