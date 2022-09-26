@@ -10,9 +10,9 @@ async function verifyJwt(auth) {
     const collectionUsers = client.db().collection("users");
     const user = await collectionUsers.findOne({ email: decode.email });
     if (user) {
-      // if (user.iat > decode.iat) {
-      //   return { error: "Sesión expirada", user };
-      // }
+      if (user.iat > decode.iat) {
+        return { error: "Sesión expirada", user };
+      }
       return { error: false, user };
     }
     return { error: "Error de autenticación", user };
