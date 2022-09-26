@@ -21,7 +21,7 @@ function userExists(message) {
         test: async (value) => {
             await client.connect();
             let collections = client.db().collection('users');
-            let results = await collections.find({ 'email': value}).toArray();
+            let results = await collections.find({ 'email': value }).toArray();
             if(results.length > 0)
                 return true;
             return false;
@@ -36,7 +36,7 @@ let paySchema = yup.object({
     type: yup.string().required().destinationType('El tipo es inválido'),
     destination: yup.string().min(2).max(255).required().userExists('El usuario destino no existe.'),
     amount: yup.number('El monto debe ser numérico').moreThan(0, 'El monto debe ser mayor a cero').required(),
-    money: yup.string().required(),
+    money: yup.string().required().min(3).max(4),
 });
 
 module.exports = {
