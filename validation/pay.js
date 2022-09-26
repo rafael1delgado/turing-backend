@@ -33,10 +33,30 @@ yup.addMethod(yup.mixed, 'destinationType', destinationType);
 yup.addMethod(yup.mixed, 'userExists', userExists);
 
 let paySchema = yup.object({
-    type: yup.string().required().destinationType('El tipo es inválido'),
-    destination: yup.string().min(2).max(255).required().userExists('El usuario destino no existe.'),
-    amount: yup.number('El monto debe ser numérico').moreThan(0, 'El monto debe ser mayor a cero').required(),
-    money: yup.string().required().min(3).max(4),
+    type: yup
+        .string()
+        .required()
+        .destinationType('El tipo es inválido'),
+    destination: yup
+        .string()
+        .min(2)
+        .max(255)
+        .email()
+        .required()
+        .userExists('El usuario destino no existe.'),
+    amount: yup
+        .number('El monto debe ser numérico')
+        .moreThan(0, 'El monto debe ser mayor a cero')
+        .required(),
+    money: yup
+        .string()
+        .required()
+        .min(3)
+        .max(4),
+    note: yup
+        .string()
+        .min(2)
+        .max(50)
 });
 
 module.exports = {
