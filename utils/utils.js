@@ -3,7 +3,7 @@ function output(content, statusCode) {
     statusCode: statusCode,
     headers: {
       "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Allow-Headers": "*",
       'Access-Control-Allow-Credentials': true
     },
     body: JSON.stringify(content)
