@@ -15,10 +15,12 @@ const handler = async (event) => {
       event.multiValueHeaders.Authorization
     );
 
-    if (jwtError) {
-      return output({ error: jwtError, header: event.multiValueHeaders.Authorization }, 500);
-    }
-    return output("success", 200);
+    return output({ auth: event.multiValueHeaders.Authorization }, 500);
+
+    // if (jwtError) {
+    //   return output({ error: jwtError }, 500);
+    // }
+    // return output("success", 200);
   }
 };
 
