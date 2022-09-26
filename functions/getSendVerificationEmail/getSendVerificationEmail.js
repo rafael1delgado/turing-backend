@@ -16,7 +16,7 @@ const handler = async (event) => {
         expiresIn: "1d",
       });
       // url en el frontend
-      const url = `${process.env.FRONTEND_HOST}/verification/${emailToken}`;
+      const url = `${process.env.FRONTEND_HOST}/verification?emailToken=${emailToken}`;
 
       // url para prueba en el backend
       // const url = `http://localhost:8888/getEmailVerification?emailToken=${emailToken}`;
