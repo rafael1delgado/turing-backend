@@ -16,8 +16,6 @@ const fnHandler = async (event) => {
             return output({ error: jwtError }, 500);
         }
 
-        let money = event.queryStringParameters.money;
-
         if (method === 'OPTIONS') {
             return output("success", 200)
         }
@@ -34,6 +32,8 @@ const fnHandler = async (event) => {
                 return output({ movements: movements }, 200);
             } catch (error) {
                 return output({ error: error.toString(), path: error.path, description: error.errors}, 400);
+            } finally {
+                await client.close();
             }
         }
     } catch (error) {
