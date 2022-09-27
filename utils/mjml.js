@@ -51,4 +51,4 @@ async function getHtml(text) {
   return data.html;
 }
 
-module.exports = {  getHtmlWithButton };
+module.exports = {  getHtmlWithButton, getHtml };
