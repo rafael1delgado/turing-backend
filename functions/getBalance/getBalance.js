@@ -21,17 +21,7 @@ const fnHandler = async (event) => {
       if (jwtError) {
         return output({ error: jwtError }, 500);
       }
-      try {
-        await client.connect();
-        const collectionUsers = client.db().collection("users");
-        let user = await collectionUsers.findOne({ email: user.email });
-
-        return output({ msg: user.balance.assets }, 200);
-      } catch (error) {
-        return output({ error: error.toString() }, 400);
-      } finally {
-        await client.close();
-      }
+      return output({ msg: user.balance.assets }, 200);
     }
   } catch (error) {
     return output({ error: error.toString() }, 500);
