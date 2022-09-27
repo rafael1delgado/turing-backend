@@ -8,6 +8,11 @@ let { passSchema } = require("../../validation/user");
 
 const handler = async (event) => {
   let { httpMethod: method } = event;
+
+  if (method === "OPTIONS") {
+    return output("success", 200);
+  }
+
   if (method == "POST") {
     let { emailToken, psw } = event.body;
     try {
