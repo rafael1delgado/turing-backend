@@ -26,7 +26,7 @@ async function getPrices() {
   const symbols = info[0].symbols;
   const r = await binanceClient.tickerPrice("", [...symbols]);
   let prices = r.data.sort((a, b) => a.price - b.price);
-  await client.close()
+  await client.close();
   return prices;
 }
 
@@ -42,10 +42,27 @@ async function getMinNotional(symbol) {
   return minNotional;
 }
 
+async function checkReceivedPayment(time, amount, currency) {
+  const { data } = await client.payHistory();
+  for (const payment of data.data) {
+    return (
+      payment.transactionTime === time &&
+      payment.amount == amount &&
+      payment.currency == currency
+    );
+  }
+}
+
+async function transferToSpotWallet(currency, amount) {
+  const r = await client.userUniversalTransfer("FUNDING_MAIN", currency, amount);
+}
+
 module.exports = {
   binanceClient,
   makeTrade,
   getPrices,
   getMinNotional,
   getPrice,
+  checkReceivedPayment,
+  transferToSpotWallet
 };
