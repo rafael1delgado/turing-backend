@@ -35,7 +35,7 @@ const fnHandler = async (event) => {
 
     if (method == "POST") {
       let data = event.body;
-      let { name, email, psw } = data;
+      let { name, email, psw, tlf } = data;
       userData(data);
 
       let salt = await bcrypt.genSalt(10);
@@ -66,6 +66,7 @@ const fnHandler = async (event) => {
         await collectionUsers.insertOne({
           name: name,
           email: email,
+          tlf: tlf,
           psw: pass,
           uuid: uuid.v4(),
           verified: false,
