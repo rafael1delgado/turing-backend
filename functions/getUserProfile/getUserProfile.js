@@ -18,7 +18,8 @@ const handler = async (event) => {
     if (jwtError) {
       return output({ error: jwtError }, 500);
     }
-    return output( { msg: "success"}, 200)
+    const userObject= {name: user.name, email: user.email, uuid: user.uuid, verified: user.verified}
+    return output({ msg: userObject }, 200);
   }
 };
 
