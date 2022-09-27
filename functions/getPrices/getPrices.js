@@ -8,9 +8,8 @@ const handler = async (event) => {
   if (method == "GET") {
     try {
       const prices = await getPrices();
-      return output({ prices }, 200);
+      return output({ msg: prices }, 200);
     } catch (error) {
-      console.log(error);
       return output(error, 500);
     }
   }

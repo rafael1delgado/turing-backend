@@ -35,6 +35,15 @@ const fnHandler = async (event) => {
       if (jwtError) {
         return output({ error: jwtError }, 500);
       }
+      if (!user.verified) {
+        return output(
+          {
+            error:
+              "Por favor, verifica tu email para poder realizar esta operación",
+          },
+          400
+        );
+      }
       let data = event.body;
       let { type, destination, amount, money, note } = data;
       try {
