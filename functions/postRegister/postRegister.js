@@ -75,7 +75,7 @@ const fnHandler = async (event) => {
         });
         verificationEmail(email);
         return output(
-          { msg: "El usuario fue registrado exitosamente.", token: token }, //
+          { msg: "El usuario fue registrado exitosamente.", token: token },
           200
         );
       } catch (error) {
