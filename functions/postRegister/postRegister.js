@@ -57,6 +57,7 @@ const fnHandler = async (event) => {
             amount: 5,
             balance: 5,
             money: "usdt",
+            note: "bonus",
             date: Math.floor(Date.now() / 1000),
           },
         ];
