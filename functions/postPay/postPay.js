@@ -7,6 +7,7 @@ let middy = require("middy");
 let { httpHeaderNormalizer, jsonBodyParser } = require("middy/middlewares");
 const { sendEmail } = require("../../utils/email");
 const { sendSms } = require("../../utils/twilio");
+const { getHtml } = require("../../utils/mjml");
 
 async function getBalance(email, money) {
   await client.connect();
@@ -77,39 +78,37 @@ const fnHandler = async (event) => {
             { $set: moneyBalanceDestination }
           );
 
-          sendEmail(
-            userDestination.email,
-            "Has recibido un pago",
+          let text = `${
+            userDestination.name
+          } has recibido un pago por ${amount} ${money.toUpperCase()} de ${
+            userOrigin.name
+          }`;
+          let html = await getHtml(text);
+          sendEmail(userDestination.email, "Has recibido un pago", html);
+
+          text = `${
+            userOrigin.name
+          } has enviado un pago por ${amount} ${money.toUpperCase()} a ${
+            userDestination.name
+          }`;
+          html = await getHtml(text);
+          sendEmail(userOrigin.email, "Enviaste Dinero", html);
+
+          sendSms(
             `${
               userDestination.name
             } has recibido un pago por ${amount} ${money.toUpperCase()} de ${
               userOrigin.name
-            }`
+            }`,
+            userDestination.tlf
           );
-
-          sendEmail(
-            userOrigin.email,
-            "Enviaste Dinero",
-            `${
-              userOrigin.name
-            } has enviado un pago por ${amount} ${money.toUpperCase()} a ${
-              userDestination.name
-            }`
-          );
-
-          sendSms(
-          `${
-             userDestination.name
-           } has recibido un pago por ${amount} ${money.toUpperCase()} de ${
-             userOrigin.name
-           }`,
-           userDestination.phone);
 
           sendSms(
             `${
               userOrigin.name
             } se ha debitado de tu cuenta ${amount} ${money.toUpperCase()}`,
-            userOrigin.phone);
+            userOrigin.tlf
+          );
 
           await collectionUsers.updateOne(
             { email: userDestination.email },
@@ -153,7 +152,9 @@ const fnHandler = async (event) => {
 
           return output(
             {
-              msg: `Pago por ${amount} ${money.toUpperCase()} a ${userDestination.email} fue realizado exitosamente.`,
+              msg: `Pago por ${amount} ${money.toUpperCase()} a ${
+                userDestination.email
+              } fue realizado exitosamente.`,
             },
             200
           );
