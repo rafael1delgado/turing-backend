@@ -8,7 +8,7 @@ const { verifyJwt } = require('../../utils/jwt');
 const fnHandler = async (event) => {
     try {
         let { httpMethod: method } = event;
-        
+
         if (method === 'OPTIONS') {
             return output("success", 200)
         }
@@ -30,7 +30,8 @@ const fnHandler = async (event) => {
                 if(users.length > 0) {
                     movements = users[0].balance.movements;
                 }
-                return output({ movements: movements }, 200);
+
+                return output({ movements: movements, balance: users[0].balance.assets }, 200);
             } catch (error) {
                 return output({ error: error.toString(), path: error.path, description: error.errors}, 400);
             } finally {
