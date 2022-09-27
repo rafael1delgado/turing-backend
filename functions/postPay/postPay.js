@@ -100,14 +100,14 @@ const fnHandler = async (event) => {
             } has recibido un pago por ${amount} ${money.toUpperCase()} de ${
               userOrigin.name
             }`,
-            userDestination.phone
+            userDestination.tlf
           );
 
           sendSms(
             `${
               userOrigin.name
             } se ha debitado de tu cuenta ${amount} ${money.toUpperCase()}`,
-            userOrigin.phone
+            userOrigin.tlf
           );
 
           await collectionUsers.updateOne(
