@@ -37,6 +37,12 @@ let userSchema = yup.object({
     .matches(
       /^((?=.*[!@#$%^&*()\-_=+{};:,<.>]){1})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/
     ),
+  tlf: yup
+    .string()
+    .required()
+    .min(13)
+    .max(13)
+    .unique("users", "tlf", "Teléfono está en uso"),
 });
 
 let capitalize = (str) => {

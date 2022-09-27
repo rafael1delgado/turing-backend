@@ -16,7 +16,7 @@ const handler = async (event) => {
       const emailToken = jwt.sign({ email: email }, process.env.SECRET_TOKEN, {
         expiresIn: "5m",
       });
-      const url = `${process.env.FRONTEND_HOST}/recovery/${emailToken}`;
+      const url = `${process.env.FRONTEND_HOST}/recovery?emailToken=${emailToken}`;
       const text = "Para crear una nueva contraseña haz click en el siguiente bot\u00f3n."
       const buttonLabel = "Crear contraseña";
       const html = await getHtmlWithButton(text, buttonLabel, url);
@@ -28,7 +28,7 @@ const handler = async (event) => {
         200
       );
     } catch (error) {
-      return output({ error }, 500);
+      return output({ error: "Hubo un problema, vuelve a intentar" }, 500);
     }
   }
 };

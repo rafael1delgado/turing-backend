@@ -6,6 +6,7 @@ const { verifyJwt } = require("../../utils/jwt");
 let middy = require("middy");
 let { httpHeaderNormalizer, jsonBodyParser } = require("middy/middlewares");
 const { sendEmail } = require("../../utils/email");
+const { sendSms } = require("../../utils/twilio");
 
 async function getBalance(email, money) {
   await client.connect();
@@ -86,6 +87,30 @@ const fnHandler = async (event) => {
             }`
           );
 
+          sendEmail(
+            userOrigin.email,
+            "Enviaste Dinero",
+            `${
+              userOrigin.name
+            } has enviado un pago por ${amount} ${money.toUpperCase()} a ${
+              userDestination.name
+            }`
+          );
+
+          sendSms(
+          `${
+             userDestination.name
+           } has recibido un pago por ${amount} ${money.toUpperCase()} de ${
+             userOrigin.name
+           }`,
+           userDestination.phone);
+
+          sendSms(
+            `${
+              userOrigin.name
+            } se ha debitado de tu cuenta ${amount} ${money.toUpperCase()}`,
+            userOrigin.phone);
+
           await collectionUsers.updateOne(
             { email: userDestination.email },
             {
@@ -128,7 +153,7 @@ const fnHandler = async (event) => {
 
           return output(
             {
-              msg: `Pago por ${amount} ${money} a ${userDestination.email} fue enviado exitosamente.`,
+              msg: `Pago por ${amount} ${money.toUpperCase()} a ${userDestination.email} fue realizado exitosamente.`,
             },
             200
           );
