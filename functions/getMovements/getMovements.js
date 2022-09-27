@@ -7,21 +7,21 @@ const { verifyJwt } = require('../../utils/jwt');
 
 const fnHandler = async (event) => {
     try {
-        let { httpMethod: method } = event;
-        const { error: jwtError, user } = await verifyJwt(
-            event.multiValueHeaders.Authorization
-        );
-
-        if (jwtError) {
-            return output({ error: jwtError }, 500);
-        }
-
         if (method === 'OPTIONS') {
             return output("success", 200)
         }
 
         if(method == 'GET') {
             try {
+                let { httpMethod: method } = event;
+                const { error: jwtError, user } = await verifyJwt(
+                    event.multiValueHeaders.Authorization
+                );
+
+                if (jwtError) {
+                    return output({ error: jwtError }, 500);
+                }
+
                 await client.connect();
                 const collectionUsers = client.db().collection('users');
                 const users = await collectionUsers.find({ 'email': user.email }).toArray();
