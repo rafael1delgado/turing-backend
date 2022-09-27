@@ -16,7 +16,7 @@ const handler = async (event) => {
         expiresIn: "5m",
       });
       // url en el frontend
-      const url = `${process.env.FRONTEND_HOST}/recovery/${emailToken}`;
+      const url = `${process.env.FRONTEND_HOST}/recovery?emailToken=${emailToken}`;
 
       // url para prueba en el backend
       // const url = `http://localhost:8888/postChangePass?emailToken=${emailToken}`;
@@ -30,7 +30,7 @@ const handler = async (event) => {
         200
       );
     } catch (error) {
-      return output({ error }, 500);
+      return output({ error: "Hubo un problema, vuelve a intentar" }, 500);
     }
   }
 };
