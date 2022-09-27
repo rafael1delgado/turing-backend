@@ -7,13 +7,14 @@ const { verifyJwt } = require('../../utils/jwt');
 
 const fnHandler = async (event) => {
     try {
+        let { httpMethod: method } = event;
+        
         if (method === 'OPTIONS') {
             return output("success", 200)
         }
 
         if(method == 'GET') {
             try {
-                let { httpMethod: method } = event;
                 const { error: jwtError, user } = await verifyJwt(
                     event.multiValueHeaders.Authorization
                 );
