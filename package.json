@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "@binance/connector": "^1.13.0",
+    "axios": "^0.27.2",
     "bcrypt": "^5.0.1",
     "dotenv": "^16.0.2",
     "jsonwebtoken": "^8.5.1",
