@@ -87,6 +87,16 @@ const fnHandler = async (event) => {
             }`
           );
 
+          sendEmail(
+            userOrigin.email,
+            "Enviaste Dinero",
+            `${
+              userOrigin.name
+            } has enviado un pago por ${amount} ${money.toUpperCase()} a ${
+              userDestination.name
+            }`
+          );
+
           sendSms(
           `${
              userDestination.name
