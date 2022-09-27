@@ -24,7 +24,7 @@ async function sendEmail(email, subject, html) {
     },
     function (error) {
       if (error) {
-        console.log(error);
+        // console.log(error);
       }
     }
   );

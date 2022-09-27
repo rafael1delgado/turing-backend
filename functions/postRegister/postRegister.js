@@ -10,19 +10,18 @@ let { userSchema, userData } = require("../../validation/user");
 const { client } = require("../../utils/conect-mongodb");
 const { output } = require("../../utils/utils");
 const { sendEmail } = require("../../utils/email");
+const { getHtmlWithButton } = require("../../utils/mjml");
 
-function verificationEmail(email) {
+async function verificationEmail(email) {
   const emailToken = jwt.sign({ email: email }, process.env.SECRET_TOKEN, {
     expiresIn: "1d",
   });
-  // url en el frontend
   const url = `${process.env.FRONTEND_HOST}/verification?emailToken=${emailToken}`;
-
-  // url para prueba en el backend
-  // const url = `http://localhost:8888/getEmailVerification?emailToken=${emailToken}`;
-
-  const text = `Bienvenido Turing Wallet.\nPor favor verifica tu email haciendo click en el siguiente <a href="${url}">link</a>`;
-  sendEmail(email, "Verificación de email", text);
+  const text =
+    "Bienvenido a Turing Exchange. Por favor verifica tu email presionando el siguiente bot\u00f3n.";
+  const buttonLabel = "Verificar email";
+  const html = await getHtmlWithButton(text, buttonLabel, url);
+  sendEmail(email, "Verificación de email", html);
 }
 
 const fnHandler = async (event) => {
