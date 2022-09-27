@@ -4,13 +4,13 @@ const { output } = require("../../utils/utils");
 const { binanceClient } = require("../../utils/binance");
 
 const handler = async (event) => {
-  let {
-    queryStringParameters: { symbol },
-  } = event;
-
   let { httpMethod: method } = event;
 
   if (method === "GET") {
+    let {
+      queryStringParameters: { symbol },
+    } = event;
+
     try {
       let { data } = await binanceClient.klines(symbol, "15m");
       let formattedData = data.map((item) => {
@@ -23,13 +23,11 @@ const handler = async (event) => {
         };
       });
 
-      return output(formattedData, 200);
+      return output({ msg: formattedData }, 200);
     } catch (error) {
-      console.log(error);
       return output({ error }, 500);
     }
   }
 };
 
-exports.handler = middy(handler)
-  .use(httpHeaderNormalizer())
+exports.handler = middy(handler).use(httpHeaderNormalizer());

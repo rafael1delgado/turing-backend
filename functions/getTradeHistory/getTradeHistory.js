@@ -6,17 +6,22 @@ const { client } = require("../../utils/conect-mongodb");
 
 const handler = async (event) => {
   let { httpMethod: method } = event;
-  const { error: jwtError, user } = await verifyJwt(
-    event.multiValueHeaders.Authorization
-  );
 
-  if (jwtError) {
-    return output({ error: jwtError }, 500);
+  if (method === "OPTIONS") {
+    return output("success", 200);
   }
 
-  const email = user.email;
-
   if (method === "GET") {
+    const { error: jwtError, user } = await verifyJwt(
+      event.multiValueHeaders.Authorization
+    );
+
+    if (jwtError) {
+      return output({ error: jwtError }, 500);
+    }
+
+    const email = user.email;
+
     try {
       await client.connect();
       const collectionUsers = client.db().collection("users");
@@ -25,10 +30,10 @@ const handler = async (event) => {
       const tradeHistory = response.balance.orders;
 
       if (!tradeHistory) {
-        return output({ msg: "user has no trades" }, 200);
+        return output({ msg: "No hay transacciones" }, 400);
       }
 
-      return output(tradeHistory, 200);
+      return output({ msg: tradeHistory }, 200);
     } catch (error) {
       return output({ error }, 500);
     } finally {

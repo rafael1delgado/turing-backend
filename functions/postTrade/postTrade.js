@@ -15,7 +15,6 @@ async function saveTradeInfo(email, tradeInfo, wallet) {
       $set: { "balance.assets": wallet },
     }
   );
-  await client.close()
   return r;
 }
 
@@ -35,6 +34,15 @@ const handler = async (event) => {
       return output({ error: jwtError }, 500);
     }
 
+    if (!user.verified) {
+      return output(
+        {
+          error:
+            "Por favor, verifica tu email para poder realizar esta operación",
+        },
+        400
+      );
+    }
     const { symbol, quantity, type } = event.body;
 
     try {
@@ -43,19 +51,10 @@ const handler = async (event) => {
       const price = await getPrice(symbol);
       const notional = quantity * price;
 
-      if (!user.verified) {
-        return output(
-          {
-            error: `The product of quantity * price has to be equal or greater than ${minNotional}`,
-          },
-          400
-        );
-      }
-
       if (notional < minNotional) {
         return output(
           {
-            error: `The product of quantity * price has to be equal or greater than ${minNotional}`,
+            error: `El producto del precio pro la cantidad debe sera mayor o igual a ${minNotional}`,
           },
           400
         );
@@ -65,7 +64,10 @@ const handler = async (event) => {
       const coinTradeSymbol = symbol.slice(0, -4);
 
       if (type.toUpperCase() === "BUY" && notional > walletFunds.usdt) {
-        return output({ error: "Not enought usdt to trade" }, 400);
+        return output(
+          { error: "No tiene suficiente USDT para realizar la transacción" },
+          400
+        );
       }
 
       if (
@@ -73,7 +75,9 @@ const handler = async (event) => {
         quantity > walletFunds[coinTradeSymbol]
       ) {
         return output(
-          { error: `Not enought ${coinTradeSymbol} to trade` },
+          {
+            error: `No tiene suficiente ${coinTradeSymbol} para realizar la transacción`,
+          },
           400
         );
       }
@@ -105,9 +109,11 @@ const handler = async (event) => {
         await saveTradeInfo(email, saveInfo, walletFunds);
       }
 
-      return output({ msg: "trade completed succesfully" }, 200);
+      return output({ msg: "transacción realizada exitosamente" }, 200);
     } catch (error) {
       return output({ error: error }, 500);
+    } finally {
+      await client.close();
     }
   }
 };

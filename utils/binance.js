@@ -26,6 +26,7 @@ async function getPrices() {
   const symbols = info[0].symbols;
   const r = await binanceClient.tickerPrice("", [...symbols]);
   let prices = r.data.sort((a, b) => a.price - b.price);
+  await client.close()
   return prices;
 }
 
